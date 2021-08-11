@@ -1,0 +1,19 @@
+[package]
+
+name = "blackd_client"
+description = "A fast, simple command-line client for black[d] (written in Rust)"
+
+version = "0.1.0"
+edition = "2018"
+
+authors = ["The Wondersmith <mark.h.schlachter@gmail.com>"]
+
+homepage = "https://black.readthedocs.io/"
+repository = "https://github.com/the-wondersmith/blackd-client"
+
+license = "AGPL-3.0-or-later"
+
+[dependencies]
+argh = "0.1.5"
+reqwest = { version = "0.11.4", features = ["blocking"] }
+tempfile = "3.2.0"
