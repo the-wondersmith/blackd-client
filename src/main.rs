@@ -1,4 +1,5 @@
 use argh::FromArgs;
+use colored::*;
 use reqwest::blocking::{Client as BlockingClient, RequestBuilder};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::StatusCode;
@@ -73,18 +74,28 @@ fn main() -> Result<(), String> {
         }
     }
 
-    let mut results: String = "\nAll done! ✨ 🍰 ✨".to_string();
+    let mut results: String = "\nAll done! ✨ 🍰 ✨\n".yellow().to_string();
 
     if formatted == 1 {
-        results += "\n• 1 file reformatted";
+        results += "\n• ".yellow().to_string().as_str();
+        results += "1 file reformatted".green().to_string().as_str();
     } else if formatted > 1 {
-        results += format!("\n• {} files reformatted", formatted).as_str();
+        results += "\n• ".yellow().to_string().as_str();
+        results += format!("{} files reformatted", formatted)
+            .green()
+            .to_string()
+            .as_str();
     }
 
     if skipped == 1 {
-        results += "\n• 1 file left unchanged.";
+        results += "\n• ".red().to_string().as_str();
+        results += "1 file left unchanged.".yellow().to_string().as_str();
     } else if skipped > 1 {
-        results += format!("\n• {} files left unchanged.", skipped).as_str();
+        results += "\n• ".red().to_string().as_str();
+        results += format!("{} files left unchanged.", skipped)
+            .yellow()
+            .to_string()
+            .as_str();
     }
 
     results += "\n";
@@ -302,10 +313,18 @@ fn format_pyfile<T: AsRef<str>>(filepath: T, client: RequestBuilder) -> Result<b
             return match write_pyfile(filepath.as_path(), resp.bytes().unwrap().to_vec()) {
                 Ok(val) => {
                     if val {
-                        println!("Successfully reformatted {:?}", filepath);
+                        println!(
+                            "{} {}",
+                            "Successfully reformatted".green(),
+                            format!("{:?}", filepath).yellow()
+                        );
                         Ok(true)
                     } else {
-                        println!("Could not reformat {:?}", filepath);
+                        println!(
+                            "{} {}",
+                            "Could not reformat".red(),
+                            format!("{:?}", filepath).yellow()
+                        );
                         Ok(false)
                     }
                 }
@@ -313,19 +332,31 @@ fn format_pyfile<T: AsRef<str>>(filepath: T, client: RequestBuilder) -> Result<b
             }
         }
         StatusCode::NO_CONTENT => {
-            println!("{:?} already well formatted, good job.", filepath);
+            println!(
+                "{} {}",
+                format!("{:?}", filepath).yellow(),
+                "already well formatted, good job.".green()
+            );
             return Ok(false);
         }
         StatusCode::BAD_REQUEST => Err(BlackError {
-            what_happened: String::from_utf8(resp.bytes().unwrap().to_vec())?,
+            what_happened: format!("{:?}", String::from_utf8(resp.bytes().unwrap().to_vec())?)
+                .as_str()
+                .red()
+                .to_string(),
         }),
         StatusCode::INTERNAL_SERVER_ERROR => Err(BlackError {
-            what_happened: format!("{:?} caused an internal error in `blackd`", filepath),
+            what_happened: format!(
+                "{} {}",
+                format!("{:?}", filepath).yellow(),
+                "caused an internal error in `blackd`".red()
+            ),
         }),
         _ => Err(BlackError {
             what_happened: format!(
-                "`blackd` returned an unrecognized status code: {}",
-                resp.status()
+                "{} {}",
+                "`blackd` returned an unrecognized status code:".red(),
+                format!("{}", resp.status()).yellow()
             ),
         }),
     }
