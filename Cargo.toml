@@ -1,9 +1,12 @@
+
+cargo-features = ["strip"]
+
 [package]
 
 name = "blackd_client"
 description = "A fast, simple command-line client for black[d] (written in Rust)"
 
-version = "0.1.0"
+version = "0.2.1"
 edition = "2018"
 
 authors = ["The Wondersmith <mark.h.schlachter@gmail.com>"]
@@ -14,6 +17,12 @@ repository = "https://github.com/the-wondersmith/blackd-client"
 license = "AGPL-3.0-or-later"
 
 [dependencies]
-argh = "0.1.5"
-reqwest = { version = "0.11.4", features = ["blocking"] }
-tempfile = "3.2.0"
+argh = ">=0.1"
+colored = ">=2"
+reqwest = { version = ">=0.11", features = ["blocking"] }
+tempfile = ">=3.2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true  # Automatically strip symbols from the binary.
